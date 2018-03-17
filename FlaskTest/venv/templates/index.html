@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<title>Music Personality Test</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://www.w3schools.com/lib/w3-theme-blue.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.min.css">
+<script src="{{ url_for('static', filename='scripts.js') }}"></script>
+<script src='http://www.midijs.net/lib/midi.js'></script>
+
+<style>
+.w3-half:hover {
+    opacity: 0.5;
+    animation: shake 0.5s;
+    animation-iteration-count: infinite;
+}
+
+@keyframes shake {
+  0% { transform: translate(1px, 1px) rotate(0deg); }
+  10% { transform: translate(-1px, -2px) rotate(-1deg); }
+  20% { transform: translate(-3px, 0px) rotate(1deg); }
+  30% { transform: translate(3px, 2px) rotate(0deg); }
+  40% { transform: translate(1px, -1px) rotate(1deg); }
+  50% { transform: translate(-1px, 2px) rotate(-1deg); }
+  60% { transform: translate(-3px, 1px) rotate(0deg); }
+  70% { transform: translate(3px, 1px) rotate(-1deg); }
+  80% { transform: translate(-1px, -1px) rotate(1deg); }
+  90% { transform: translate(1px, 2px) rotate(0deg); }
+  100% { transform: translate(1px, -2px) rotate(-1deg); }
+}
+
+</style>
+
+<body>
+
+<!-- Side Navigation -->
+<nav class="w3-sidebar w3-bar-block w3-card w3-animate-left w3-center" style="display:none" id="mySidebar">
+  <h1 class="w3-xxxlarge w3-text-theme">Select Your Level</h1>
+  <button class="w3-bar-item w3-button" onclick="w3_close()">Close <i class="fa fa-remove"></i></button>
+  <a href="#" class="w3-bar-item w3-button">Level 1</a>
+  <a href="#" class="w3-bar-item w3-button">Level 2</a>
+  <a href="#" class="w3-bar-item w3-button">Level 3</a>
+</nav>
+
+<!-- Header -->
+<header class="w3-container w3-theme w3-padding" id="myHeader">
+  <i onclick="w3_open()" class="fa fa-bars w3-xlarge w3-button w3-theme"></i>
+  <div class="w3-center">
+  <h4>What Famous Musician Are You?</h4>
+  <h1 class="w3-xxxlarge w3-animate-bottom">Music Personality Test</h1>
+  </div>
+</header>
+
+<br>
+<br>
+
+<div class="w3-row-padding w3-center w3-margin-top">
+<div class="w3-half">
+  <div class="w3-card w3-container" style="min-height:460px">
+  <h3>Choice #1</h3><br>
+  <i class="fa fa-music w3-margin-bottom w3-text-theme" style="font-size:120px"></i>
+  <p>Hover vs Opacity</p>
+  <p>Questions above Choices</p>
+  <p>W3 Scripts Errors</p>
+  <p>Changing Songs on Hover</p>
+  </div>
+</div>
+
+<div class="w3-half">
+  <div class="w3-card w3-container" style="min-height:460px">
+  <h3>Choice #2</h3><br>
+  <i class="fa fa-volume-up w3-margin-bottom w3-text-theme" style="font-size:120px"></i>
+  <p>Why is Flask such a Bitch</p>
+  <p>Sure just don't render my JS</p>
+  <p>Java > Python > JS</p>
+  <p>What in the world is WSGI</p>
+  </div>
+</div>
+</div>
+
+</body>
+
+<script>
+var columnList;
+
+window.onload = function () {
+    MIDIjs.play('{{ url_for('static', filename='midi/createdMidi.mid') }}');
+    columnList = document.getElementsByClassName("w3-half");
+    for (var i = 0; i < columnList.length; i++) {
+        columnList[i].onclick = function() {
+            selectAnswer(this);
+        }
+    }
+}
+
+function selectAnswer(columnClicked) {
+    if (columnClicked == columnList[0]) {
+        MIDIjs.play('{{ url_for('static', filename='midi/createdMidi.mid') }}');
+        window.location = "http://127.0.0.1:5000/secondQuestion";
+    } else if (columnClicked == columnList[1]) {
+        window.location = "http://127.0.0.1:5000/secondQuestion";
+    }
+}
+</script>
+
+</html>

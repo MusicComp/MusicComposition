@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src='http://www.midijs.net/lib/midi.js'></script>
+<body>
+<h2>Two Equal Columns</h2>
+
+<div class="row">
+  <div class="column" style="background-color:#aaa;">
+    <h2>Column 1</h2>
+    <p>Pressed Z</p>
+  </div>
+  <div class="column" style="background-color:#bbb;">
+    <h2>Column 2</h2>
+    <p>Pressed X</p>
+  </div>
+</div>
+<a href="#" onClick="MIDIjs.play('{{ url_for('static', filename='midi/leggo.mid') }}');">Play My Song</a>
+</body>
+
+<script>
+var columnList;
+
+window.onload = function () {
+    MIDIjs.play('{{ url_for('static', filename='midi/createdMidi.mid') }}');
+    columnList = document.getElementsByClassName("column");
+    for (var i = 0; i < columnList.length; i++) {
+        columnList[i].onclick = function() {
+            playMusic(this);
+        }
+    }
+}
+
+function playMusic(columnClicked) {
+    if (columnClicked == columnList[0]) {
+        alert("Hi");
+        MIDIjs.play('{{ url_for('static', filename='midi/hinematov.mid') }}');
+    } else if (columnClicked == columnList[1]) {
+        window.location = "https://heellife.unc.edu/organizations";
+    }
+}
+
+</script>
+</html>
