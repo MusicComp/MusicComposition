@@ -71,7 +71,9 @@
   <div class="w3-card w3-container" style="min-height:460px">
   <h3>Choice #2</h3><br>
   <i class="fa fa-volume-up w3-margin-bottom w3-text-theme" style="font-size:120px"></i>
+	<!--
   <p>Why is Flask such a Bitch</p>
+	-->
   <p>Sure just don't render my JS</p>
   <p>Java > Python > JS</p>
   <p>What in the world is WSGI</p>
@@ -97,9 +99,9 @@ window.onload = function () {
 function selectAnswer(columnClicked) {
     if (columnClicked == columnList[0]) {
         MIDIjs.play('{{ url_for('static', filename='midi/createdMidi.mid') }}');
-        window.location = "http://127.0.0.1:5000/secondQuestion";
+        window.location = "/secondQuestion";
     } else if (columnClicked == columnList[1]) {
-        window.location = "http://127.0.0.1:5000/secondQuestion";
+        window.location = "/secondQuestion";
     }
 }
 </script>
