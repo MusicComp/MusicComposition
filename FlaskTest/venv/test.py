@@ -16,14 +16,14 @@ def createMidi2():
     chords = generateChords(mozartMajorMC, 'B', 20)
     for chord in chords:
         score.append(chord)
-    fp = score.write('midi', 'static/midi/createdMidi.mid', status='replace')
+    fp = score.write('midi', 'static/midi/createdMidi2.mid', status='replace')
 
 def createMidi3():
     score = stream.Score()
     chords = generateChords(mozartMajorMC, 'G', 20)
     for chord in chords:
         score.append(chord)
-    fp = score.write('midi', 'static/midi/createdMidi.mid', status='replace')
+    fp = score.write('midi', 'static/midi/createdMidi3.mid', status='replace')
 
 @app.route('/')
 def index():
