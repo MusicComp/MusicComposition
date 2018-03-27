@@ -6,31 +6,9 @@
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 <link rel="stylesheet" href="https://www.w3schools.com/lib/w3-theme-red.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 <script src="{{ url_for('static', filename='scripts.js') }}"></script>
 <script src='http://www.midijs.net/lib/midi.js'></script>
-
-<style>
-.w3-half:hover {
-    opacity: 0.5;
-    animation: shake 0.5s;
-    animation-iteration-count: infinite;
-}
-
-@keyframes shake {
-  0% { transform: translate(1px, 1px) rotate(0deg); }
-  10% { transform: translate(-1px, -2px) rotate(-1deg); }
-  20% { transform: translate(-3px, 0px) rotate(1deg); }
-  30% { transform: translate(3px, 2px) rotate(0deg); }
-  40% { transform: translate(1px, -1px) rotate(1deg); }
-  50% { transform: translate(-1px, 2px) rotate(-1deg); }
-  60% { transform: translate(-3px, 1px) rotate(0deg); }
-  70% { transform: translate(3px, 1px) rotate(-1deg); }
-  80% { transform: translate(-1px, -1px) rotate(1deg); }
-  90% { transform: translate(1px, 2px) rotate(0deg); }
-  100% { transform: translate(1px, -2px) rotate(-1deg); }
-}
-
-</style>
 
 <body>
 
@@ -53,27 +31,26 @@
 </header>
 
 <br>
-<br>
 
 <div class="w3-row-padding w3-center w3-margin-top">
-<div class="w3-half">
+<div class="column" style="padding-left: 12px;">
   <div class="w3-card w3-container" style="min-height:460px">
   <h3>Choice #1</h3><br>
-  <i class="fa fa-music w3-margin-bottom w3-text-theme" style="font-size:120px"></i>
+  <i class="fa fa-music w3-margin-bottom w3-text-theme" style="font-size:120px"></i><br>
   <p>Hover vs Opacity</p>
   <p>Questions above Choices</p>
   <p>W3 Scripts Errors</p>
   <p>Changing Songs on Hover</p>
   </div>
 </div>
-
-<div class="w3-half">
+  <div class="gap">
+    <br>
+  </div>
+<div class="column" style="padding-right: 12px;">
   <div class="w3-card w3-container" style="min-height:460px">
   <h3>Choice #2</h3><br>
-  <i class="fa fa-volume-up w3-margin-bottom w3-text-theme" style="font-size:120px"></i>
-	<!--
+  <i class="fa fa-volume-up w3-margin-bottom w3-text-theme" style="font-size:120px"></i><br>
   <p>Why is Flask such a Bitch</p>
-	-->
   <p>Sure just don't render my JS</p>
   <p>Java > Python > JS</p>
   <p>What in the world is WSGI</p>
@@ -84,24 +61,62 @@
 </body>
 
 <script>
-var columnList;
+// Setting up Variables
+var columnList = document.getElementsByClassName("column");
+var input = 3;
 
-window.onload = function () {
-    MIDIjs.play('{{ url_for('static', filename='midi/createdMidi3.mid') }}');
-    columnList = document.getElementsByClassName("w3-half");
-    for (var i = 0; i < columnList.length; i++) {
-        columnList[i].onclick = function() {
-            selectAnswer(this);
+// Keyboard Input
+document.addEventListener('keydown', function(event) {
+    if (event.keyCode == 37) { // Left Arrow Key
+        mouseEnter();
+        input = 0;
+    } else if (event.keyCode == 39) { // Right Arrow Key
+        mouseEnter();
+        input = 1;
+    } else if (event.keyCode == 32) { // Spacebar
+        if (input == 0) {
+          window.location = "http://127.0.0.1:5000/";
+        } else if (input == 1) {
+          window.location = "http://127.0.0.1:5000/"
         }
+    }
+});
+
+// Hover Event
+for (var i = 0; i < columnList.length; i++) {
+    columnList[i].addEventListener("mouseenter", mouseEnter);
+    columnList[i].addEventListener("mouseleave", mouseLeave);
+}
+
+// Currently Hovering
+function mouseEnter() {
+    MIDIjs.stop();
+    MIDIjs.play('{{ url_for('static', filename='midi/createdMidi2.mid') }}');
+}
+
+// No Longer Hovering
+function mouseLeave() {
+    MIDIjs.stop();
+    MIDIjs.play('{{ url_for('static', filename='midi/createdMidi3.mid') }}');
+}
+
+// Making a Choice
+for (var i = 0; i < columnList.length; i++) {
+    columnList[i].onclick = function() {
+      selectAnswer(this);
     }
 }
 
 function selectAnswer(columnClicked) {
-   if (columnClicked == columnList[0]) {
-     window.location = "/";
-   } else if (columnClicked == columnList[1]) {
-     window.location = "/";
-   }
+    if (columnClicked == columnList[0]) {
+        window.location = "http://127.0.0.1:5000/";
+    } else if (columnClicked == columnList[1]) {
+        window.location = "http://127.0.0.1:5000/";
+    }
+}
+
+window.onload = function () {
+    MIDIjs.play('{{ url_for('static', filename='midi/createdMidi2.mid') }}');
 }
 
 </script>

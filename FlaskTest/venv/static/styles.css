@@ -1,4 +1,14 @@
-.w3-half:hover {
+.column {
+  float: left;
+  width: 49%;
+}
+
+.gap {
+  float: left;
+  width: 2%;
+}
+
+.column:hover {
     opacity: 0.5;
     animation: shake 0.5s;
     animation-iteration-count: infinite;
