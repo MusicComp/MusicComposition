@@ -11,65 +11,19 @@ def makeRelativeChord(_numeral, _key, _octave=4, _quarterLength=1):
 def makeChord(_sym, _octave):
     c = harmony.ChordSymbol(_sym, quarterLength=_quarterLength)
 
-def allChords(var, cMa):
-    cMa = chord.Chord("C4", "E4", "G4")
-    cMb = chord.Chord("E4", "G4","C5")
-    cMc = chord.Chord("G4", "C5", "E5")
-    cShMa = chord.Chord("C#4", "F4", "G#4")
-    cShMb = chord.Chord("F4", "G#4", "C#5")
-    cShMc = chord.Chord("G#4", "C#5", "F5")
-    dMa = chord.Chord("D4", "F#4", "A4")
-    dMb = chord.Chord("F#4", "A4", "D5")
-    dMc = chord.Chord("A4", "D5", "F#5")
-    eMa = chord.Chord("E4", "G#4", "B4")
-    eMb = chord.Chord("G#4", "B4", "E5")
-    eMc = chord.Chord("B4", "E5", "G#5")
-    fMa = chord.Chord("F4", "A4", "C5")
-    fMb = chord.Chord("A4", "C5", "F5") 
-    fMc = chord.Chord("C4", "F4", "A4")
-    fShMa = chord.Chord("F#4", "A#4", "C#5")
-    fShMb = chord.Chord("A#4", "C#5", "F#5")
-    fShMc = chord.Chord("C#4", "F#4", "A#4")
-    gMa = chord.Chord("G4", "B4", "D5")
-    gMb = chord.Chord("B4", "D5", "G5")
-    gMc = chord.Chord("D4", "G4", "B4")
-    aFlMa = chord.Chord("A-4", "C5", "E-5")
-    aFlMb = chord.Chord("C4", "E-4", "A-4")
-    aFlMc = chord.Chord("E-4", "A-4", "C5")
-    aMa = chord.Chord("A4", "C#5", "E5")
-    aMb = chord.Chord("C#4", "E4", "A4")
-    aMc = chord.Chord("E4", "A4", "C#5")
-    bFlMa = chord.Chord("B-3", "D4", "F4")
-    bFlMb = chord.Chord("D4", "F4", "B-4")
-    bFlMc = chord.Chord("F4", "B-4", "D5")
-    bMa = chord.Chord("B3", "D#4", "F#4")
-    bMb = chord.Chord("D#4", "F#4", "B4")
-    bMc = chord.Chord("F#4", "B4", "D#5")
+def canon():
+    score = stream.Score()
+    score.append(makeRelativeChord('I', 'D', 4))
+    score.append(makeRelativeChord('V', 'D', 3))
+    score.append(makeRelativeChord('vi', 'D', 3))
+    score.append(makeRelativeChord('iii', 'D', 3))
 
-def inversionMatrix():
-    I = [ 'ii', 'iiic', 'IVc', 'Vb', 'vib', 'vii' ]
-    Ib = [ 'iib', 'iii', 'IV', 'V', 'vic', 'viic' ]
-    Ic = [ 'iic', 'iiib', 'IV', 'V', 'vi', 'vii' ]
-    ii = [ 'I', 'iii', 'IVc', 'Vc', 'vib', 'viib' ]    
-    iib = [ 'Ib', 'iiib', 'IV', 'V', 'vi', 'viic' ]
-    iic = [ 'Ic', 'iiic', 'IVb', 'V', 'vi', 'vii' ] 
-    iii = [ 'Ib', 'ii', 'IV', 'Vc', 'vib', 'viib' ]
-    iiib = [ 'Ic', 'iib', 'IVb', 'V', 'vi', 'viic' ]
-    iiic = [ 'I', 'iic', 'IVc', 'Vb', 'vib', 'vii' ]
-    IV = [ 'Ib', 'iib', 'iii', 'V', 'vic', 'viic' ]
-    IVb = [ 'Ic', 'iic', 'iiib', 'Vb', 'vi', 'vii' ]
-    IVc = [ 'I', 'ii', 'iiic', 'Vc', 'vib', 'viib' ]
-    V = [ 'Ic', 'iib', 'iiib', 'IV', 'vi', 'viic' ]
-    Vb = [ 'I', 'ii', 'iiic', 'IVb', 'vib', 'vii' ]
-    Vc = [ 'Ib', 'ii', 'iii', 'IV', 'vic', 'viib' ]
-    vi = [ 'Ic', 'iib', 'iii', 'iiic', 'V', 'vii' ]
-    vib = [ 'I', 'ii', 'iiic', 'iiic', 'Vc', 'viic' ]
-    vic = [ 'Ib', 'iib', 'iii', 'iiic', 'Vc', 'viic' ]
-    vii = [ 'Ic', 'iic', 'iiic', 'iiic', 'Vb', 'vi' ]
-    viib = [ 'Ib', 'ii', 'iii', 'iiic', 'Vc', 'vib' ]
-    viic = [ 'Ib', 'ii', 'iii', 'iiic', 'V', 'vib' ]
+    score.append(makeRelativeChord('IV', 'D', 3))
+    score.append(makeRelativeChord('I', 'D', 3))
+    score.append(makeRelativeChord('IV', 'D', 3))
+    score.append(makeRelativeChord('V', 'D', 3))
+    return score
 
-    all = [I, Ib, ic, ii, iib, iic, iii, iiib, iiic, IV, IVb, IVc, V, Vb, Vc, vi, vib, vic, vii, viib, viic]
 # http://www.bsu.edu/libraries/beneficencepress/mathexchange/10-01/MarkovChainsChordProgressions.pdf
 romanNumerals = [ "I", "ii", "iii", "IV", "V", "vi", "viio" ] # Major
 # romanNumerals = [ 'i', 'iio', 'III', 'iv', 'v', 'VI', 'VII' ] # minor
@@ -110,7 +64,6 @@ rhythms = [
         [1, 1, 2],
         [2, 1, 1],
         [1, 1, 1, 1],
-        [3, 1, 3, 1],
         ]
 
 def generateChords(markov, _key, n):
@@ -157,19 +110,22 @@ def generateChords(markov, _key, n):
     return chords
 
 def main():
-    score = stream.Score()
+    # # score = canon()
+    # score = stream.Score()
+    #
+    # # chords = generateChords(mozartMajorMC, 'Cm', 20)
+    # chords = generateChords(bachMinor, 'Cm', 20)
+    # # chords = generateChords(touhouZun, 'Cm', 20)
+    # for chord in chords:
+    #     score.append(chord)
+    #     print()
+    # # midiFile = score.write('midi')
+    # # print(midiFile)
+    # midiFile = score.show('midi')
 
-    # Creates the Score
-    chords = generateChords(bachMinor, 'Cm', 20)
-    for chord in chords:
-        score.append(chord)
-
-    # Creates the Midi
-    #fp = score.write('midi', 'Jon.mid')
-
-    # Plays the Score
-    sp = midi.realtime.StreamPlayer(score)
-    sp.play()
+    mid = midiFile
+    midiFile = createdMidi.mid
+    #midiFile.read(createdMidi.mid)
 
 if __name__ == '__main__':
     main()

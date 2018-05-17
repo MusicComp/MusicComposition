@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html>
-<title>Music Personality Test</title>
+<title>Music Personality Game</title>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-<link rel="stylesheet" href="https://www.w3schools.com/lib/w3-theme-green.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 <script src="{{ url_for('static', filename='scripts.js') }}"></script>
@@ -12,18 +11,12 @@
 
 <body>
 
-<!-- Side Navigation -->
-<nav class="w3-sidebar w3-bar-block w3-card w3-animate-left w3-center" style="display:none" id="mySidebar">
-  <h1 class="w3-xxxlarge w3-text-theme">Select Your Level</h1>
-  <button class="w3-bar-item w3-button" onclick="w3_close()">Close <i class="fa fa-remove"></i></button>
-  <a href="#" class="w3-bar-item w3-button">Level 1</a>
-  <a href="#" class="w3-bar-item w3-button">Level 2</a>
-  <a href="#" class="w3-bar-item w3-button">Level 3</a>
-</nav>
+<audio id="my_audio" src="{{ url_for('static', filename='midi/introduction.mp3') }}"></audio>
 
 <!-- Header -->
-<header class="w3-container w3-theme w3-padding" id="myHeader">
-  <i onclick="w3_open()" class="fa fa-bars w3-xlarge w3-button w3-theme"></i>
+<header class="w3-container w3-theme w3-padding" id="myHeader" style="color: white">
+    <br>
+    <br>
   <div class="w3-center">
   <h4>What Famous Musician Are You?</h4>
   <h1 class="w3-xxxlarge w3-animate-bottom">Music Personality Test</h1>
@@ -33,7 +26,7 @@
 <br>
 
 <div class="w3-row-padding w3-center w3-margin-top">
-<div class="column" style="padding-left: 12px;">
+<div id="firstColumn" class="column" style="padding-left: 12px;">
   <div class="w3-card w3-container" style="min-height:460px">
   <h3>Choice #1</h3><br>
   <i class="fa fa-music w3-margin-bottom w3-text-theme" style="font-size:120px"></i><br>
@@ -46,7 +39,7 @@
   <div class="gap">
     <br>
   </div>
-<div class="column" style="padding-right: 12px;">
+<div id="secondColumn" class="column" style="padding-right: 12px;">
   <div class="w3-card w3-container" style="min-height:460px">
   <h3>Choice #2</h3><br>
   <i class="fa fa-volume-up w3-margin-bottom w3-text-theme" style="font-size:120px"></i><br>
@@ -63,41 +56,55 @@
 <script>
 // Setting up Variables
 var columnList = document.getElementsByClassName("column");
+var colorChangeHeader = document.getElementsByClassName("w3-container w3-theme w3-padding");
+var colorChangeImages = document.getElementsByTagName("i");
+var colorToSetAs = getRandomColor();
 var input = 3;
 
 // Keyboard Input
 document.addEventListener('keydown', function(event) {
     if (event.keyCode == 37) { // Left Arrow Key
-        mouseEnter();
+        MIDIjs.play("{{ url_for('static', filename='midi/leftMidi.mid') }}");
         input = 0;
+    } else if (event.keyCode == 38) { // Up Arrow Key
+        window.location = "http://127.0.0.1:5000/secondQuestion";
     } else if (event.keyCode == 39) { // Right Arrow Key
-        mouseEnter();
+        MIDIjs.play("{{ url_for('static', filename='midi/rightMidi.mid') }}");
         input = 1;
+    } else if (event.keyCode == 40) { // Down Arrow Key
+        playIntro();
     } else if (event.keyCode == 32) { // Spacebar
         if (input == 0) {
-          window.location = "http://127.0.0.1:5000/thirdQuestion";
+          location.reload();
         } else if (input == 1) {
-          window.location = "http://127.0.0.1:5000/thirdQuestion"
+          location.reload();
         }
     }
 });
 
 // Hover Event
 for (var i = 0; i < columnList.length; i++) {
-    columnList[i].addEventListener("mouseenter", mouseEnter);
     columnList[i].addEventListener("mouseleave", mouseLeave);
 }
 
+columnList[0].addEventListener("mouseenter", mouseLeftEnter);
+columnList[1].addEventListener("mouseenter", mouseRightEnter);
+
 // Currently Hovering
-function mouseEnter() {
+function mouseLeftEnter() {
     MIDIjs.stop();
-    MIDIjs.play('{{ url_for('static', filename='midi/createdMidi2.mid') }}');
+    MIDIjs.play("{{ url_for('static', filename='midi/leftMidi.mid') }}");
+}
+
+function mouseRightEnter() {
+    MIDIjs.stop();
+    MIDIjs.play("{{ url_for('static', filename='midi/rightMidi.mid') }}");
 }
 
 // No Longer Hovering
 function mouseLeave() {
     MIDIjs.stop();
-    MIDIjs.play('{{ url_for('static', filename='midi/createdMidi3.mid') }}');
+    MIDIjs.play("{{ url_for('static', filename='midi/baseMidi.mid') }}");
 }
 
 // Making a Choice
@@ -109,16 +116,35 @@ for (var i = 0; i < columnList.length; i++) {
 
 function selectAnswer(columnClicked) {
     if (columnClicked == columnList[0]) {
-        window.location = "http://127.0.0.1:5000/thirdQuestion";
+        location.reload();
     } else if (columnClicked == columnList[1]) {
-        window.location = "http://127.0.0.1:5000/thirdQuestion";
+        location.reload();
     }
 }
 
+function playIntro() {
+    document.getElementById("my_audio").play();
+}
+
 window.onload = function () {
-    MIDIjs.play('{{ url_for('static', filename='midi/createdMidi2.mid') }}');
+    for (let i = 0; i < colorChangeHeader.length; i++) {
+        colorChangeHeader[i].style.backgroundColor = colorToSetAs;
+    }
+    for (let i = 0; i < colorChangeImages.length; i++) {
+        colorChangeImages[i].style.color = colorToSetAs;
+    }
+    MIDIjs.play("{{ url_for('static', filename='midi/baseMidi.mid') }}");
+}
+
+// Random Color Generator
+function getRandomColor() {
+    var letters = '0123456789ABCDEF';
+    var color = '#';
+    for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() *16)];
+    }
+    return color;
 }
 
 </script>
-
 </html>
