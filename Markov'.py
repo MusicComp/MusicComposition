@@ -218,8 +218,8 @@ def main():
     midiFile = score.show('midi')
  
     # Plays the Score
-    #sp = midi.realtime.StreamPlayer(score)
-    #sp.play()
+    sp = midi.realtime.StreamPlayer(score)
+    sp.play()
     
 if __name__ == '__main__':
     main()

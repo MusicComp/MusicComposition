@@ -12,7 +12,7 @@ noteG = note.Note('G4')
 def main():
     # 2nd Order Markov List
     secondOrderList = {}
-    
+
     # Adds Notes to Array
     secondList = []
     secondList.append(noteA)
@@ -25,7 +25,7 @@ def main():
     secondList.append(noteA)
     secondList.append(noteB)
     secondList.append(noteC)
-     
+
     # Counts the number of transitions
     i = 0
     for notes in secondList:
@@ -44,6 +44,6 @@ def main():
             firstNote = secondNote
             secondNote = notes
     print(secondOrderList)
-        
+
 if __name__ == '__main__':
     main()

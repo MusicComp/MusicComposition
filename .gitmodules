@@ -1,0 +1,3 @@
+[submodule "hooktheory-data"]
+	path = hooktheory-data
+	url = https://github.com/owencm/hooktheory-data
