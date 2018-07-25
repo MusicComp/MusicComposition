@@ -15,5 +15,5 @@ RUN apk update && \
 
 RUN pip3 install -r requirements.txt
 
-ENTRYPOINT python3 /app/Runner.py
+CMD python3 /app/Runner.py
 EXPOSE 5000
