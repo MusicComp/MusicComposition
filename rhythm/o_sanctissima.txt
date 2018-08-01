@@ -1,0 +1,7 @@
+[
+\instrument<"trumpet">
+\key<"D">
+\meter<"4/4">
+a/2 b/2 a/4. g/8 f#/4 g a/2 b a/4. g/8 f#/4 g
+a/2 a/2 b/2 c#2/4 d/4 c#/2 b1 a/1
+]
