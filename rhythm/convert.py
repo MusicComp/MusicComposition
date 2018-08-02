@@ -27,7 +27,14 @@ def convert_from_score(score):
                 s += f"{n}*{dur.denominator}/{dur.numerator} "
 
             else:
-                el.show('text')
+                if isinstance(el, m21.tempo.MetronomeMark):
+                    s += f'\\tempo<"{el.number}">\n'
+                elif isinstance(el, m21.meter.TimeSignature):
+                    s += f'\\timesignature<"{el.numerator}/{el.denominator}">\n'
+                elif isinstance(el, m21.key.Key):
+                    s += f'\\key<"{el.name}">\n'
+                else:
+                    el.show('text')
 
         s += ']\n'
         print('------------')
@@ -36,4 +43,4 @@ def convert_from_score(score):
 if __name__ == '__main__':
     score = m21.midi.translate.midiFilePathToStream(sys.argv[1])
     s = convert_from_score(score)
-    # print(s)
+    print(s)

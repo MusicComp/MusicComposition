@@ -21,24 +21,35 @@ tokens = (
         'PITCH',
         'REST',
         'TAG_INSTRUMENT',
+        'TAG_TEMPO',
+        'TAG_TIMESIGNATURE',
+        'TAG_KEY',
         'STRING'
         )
 
 t_SPACE = r'[ \t\n]+'
+
 t_PITCH = r'[a-gA-G][#-]?[1-8]?'
 t_REST = r'[r]'
+
 # t_TAG = r'\\[a-zA-Z][a-zA-Z0-9_]*'
 t_TAG_INSTRUMENT = r'\\instrument'
-t_STRING = r'".*"'
+t_TAG_TEMPO = r'\\tempo'
+t_TAG_TIMESIGNATURE = r'\\timesignature'
+t_TAG_KEY = r'\\key'
 
 def t_INT(t):
-    # TODO support decimals
     r'\d+'
     try:
         t.value = int(t.value)
     except ValueError:
         print("Integer value too large %d", t.value)
         t.value = 0
+    return t
+
+def t_STRING(t):
+    r'".*"'
+    t.value = t.value[1:-1]
     return t
 
 literals = [
@@ -114,6 +125,9 @@ def p_melody_element(t):
     melody_element : note
                    | rest
                    | chord
+                   | tag_tempo
+                   | tag_timesignature
+                   | tag_key
     """
     t[0] = t[1]
 
@@ -222,7 +236,27 @@ def p_tag_instrument(t):
     """
     tag_instrument : TAG_INSTRUMENT '<' STRING '>'
     """
-    t[0] = t[3]
+    # https://github.com/cuthbertLab/music21/blob/master/music21/languageExcerpts/instrumentLookup.py
+    t[0] = m21.instrument.fromString(t[3])
+
+def p_tag_tempo(t):
+    """
+    tag_tempo : TAG_TEMPO '<' STRING '>'
+              | TAG_TEMPO '<' INT '>'
+    """
+    t[0] = m21.tempo.MetronomeMark(t[3])
+
+def p_tag_timesignature(t):
+    """
+    tag_timesignature : TAG_TIMESIGNATURE '<' STRING '>'
+    """
+    t[0] = m21.meter.TimeSignature(t[3])
+
+def p_tag_key(t):
+    """
+    tag_key : TAG_KEY '<' STRING '>'
+    """
+    t[0] = m21.key.Key(t[3])
 
 ##
 ## def p_tag_id(t):
@@ -259,8 +293,7 @@ if __name__ == '__main__':
     for p in ast:
         part = m21.stream.Part()
         # Add instrument 
-        # https://github.com/cuthbertLab/music21/blob/master/music21/languageExcerpts/instrumentLookup.py
-        part.insert(m21.instrument.fromString(p.instrument))
+        part.insert(p.instrument)
         for el in p.els:
             # Randomly adjust velocity (humanize)
             if isinstance(el, m21.note.Note) or isinstance(el, m21.chord.Chord):
