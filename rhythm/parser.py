@@ -44,7 +44,7 @@ literals = [
         '#', '-',
         '*',
         '%',
-        '.',
+        '.', ',',
         '[', ']',
         '<', '>',
         '(', ')',
@@ -89,9 +89,32 @@ def p_part_default(t):
 
 def p_part(t):
     """
-    part : tag_instrument SPACE '[' SPACE note_series SPACE ']'
+    part : tag_instrument SPACE '[' SPACE melody SPACE ']'
     """
     t[0] = MyPart(t[1], t[5])
+
+def p_melody(t):
+    """
+    melody : 
+           | melody_element
+           | melody SPACE melody_element
+    """
+    # empty
+    if len(t) == 1:
+        t[0] = []
+    # single
+    elif len(t) == 2:
+        t[0] = [ t[1] ]
+    else:
+        t[0] = t[1]
+        t[0].append(t[3])
+
+def p_melody_element(t):
+    """
+    melody_element : note
+                   | chord
+    """
+    t[0] = t[1]
 
 def p_note_series(t):
     """
@@ -115,6 +138,28 @@ def p_note(t):
     """
     t[0] = m21.note.Note(t[1], duration=t[2])
 
+def p_chord(t):
+    """
+    chord : '{' chord_pitches '}'  duration
+    """
+    t[0] = m21.chord.Chord(t[2], duration=t[4])
+
+def p_chord_pitches(t):
+    """
+    chord_pitches : 
+                  | pitch
+                  | chord_pitches ',' pitch
+    """
+    # empty
+    if len(t) == 1:
+        t[0] = []
+    # single
+    elif len(t) == 2:
+        t[0] = [ t[1] ]
+    else:
+        t[0] = t[1]
+        t[0].append(t[3])
+
 def p_pitch_natural(t):
     """
     pitch : pitch_letter
@@ -124,7 +169,6 @@ def p_pitch_natural(t):
         octave = 4
     else:
         octave = t[2]
-    print(octave)
     t[0] = m21.pitch.Pitch(t[1] + str(octave))
 
 def p_pitch_accidental(t):
@@ -165,45 +209,27 @@ def p_duration_empty(t):
 
 def p_duration_enum_denom(t):
     """
-    duration : '*' enum '/' denom
-             | '*' enum '/' denom dotting
+    duration : '*' enum '/' denom dotting
     """
-    # No dots
-    if len(t) == 5:
-        dots = 0
-    # Dots
-    else:
-        dots = t[3]
     quarterLength = 4 * t[2] / t[4]
+    dots = t[3]
     t[0] = m21.duration.Duration(quarterLength=quarterLength, dots=dots)
 
 
 def p_duration_enum(t):
     """
-    duration : '*' enum
-             | '*' enum dotting
+    duration : '*' enum dotting
     """
-    # No dots
-    if len(t) == 3:
-        dots = 0
-    # Dots
-    else:
-        dots = t[3]
     quarterLength = 4 * t[2]
+    dots = t[3]
     t[0] = m21.duration.Duration(quarterLength=quarterLength, dots=dots)
 
 def p_duration_denom(t):
     """
-    duration : '/' denom
-             | '/' denom dotting
+    duration : '/' denom dotting
     """
-    # No dots
-    if len(t) == 3:
-        dots = 0
-    # Dots
-    else:
-        dots = t[3]
     quarterLength = 4 / t[2]
+    dots = t[3]
     t[0] = m21.duration.Duration(quarterLength=quarterLength, dots=dots)
 
 def p_enum(t):
@@ -217,6 +243,10 @@ def p_denom(t):
     denom : INT
     """
     t[0] = t[1]
+
+def p_dotting_none(t):
+    "dotting : "
+    t[0] = 0
 
 def p_dotting_one(t):
     "dotting : '.'" # *3/2
