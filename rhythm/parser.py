@@ -18,13 +18,15 @@ import re
 tokens = (
         'SPACE',
         'INT',
-        'LETTER',
+        'PITCH',
+        'REST',
         'TAG_INSTRUMENT',
         'STRING'
         )
 
 t_SPACE = r'[ \t\n]+'
-t_LETTER = r'[a-zA-Z]'
+t_PITCH = r'[a-gA-G][#-]?[1-8]?'
+t_REST = r'[r]'
 # t_TAG = r'\\[a-zA-Z][a-zA-Z0-9_]*'
 t_TAG_INSTRUMENT = r'\\instrument'
 t_STRING = r'".*"'
@@ -83,7 +85,7 @@ def p_part_list(t):
 
 def p_part_default(t):
     """
-    part : '[' SPACE note_series SPACE ']'
+    part : '[' SPACE melody SPACE ']'
     """
     t[0] = MyPart('piano', t[5])
 
@@ -112,31 +114,22 @@ def p_melody(t):
 def p_melody_element(t):
     """
     melody_element : note
+                   | rest
                    | chord
     """
     t[0] = t[1]
-
-def p_note_series(t):
-    """
-    note_series : 
-                | note
-                | note_series SPACE note
-    """
-    # empty
-    if len(t) == 1:
-        t[0] = []
-    # single
-    elif len(t) == 2:
-        t[0] = [ t[1] ]
-    else:
-        t[0] = t[1]
-        t[0].append(t[3])
 
 def p_note(t):
     """
     note : pitch duration
     """
     t[0] = m21.note.Note(t[1], duration=t[2])
+
+def p_rest(t):
+    """
+    rest : REST duration
+    """
+    t[0] = m21.note.Rest(duration=t[2])
 
 def p_chord(t):
     """
@@ -160,48 +153,11 @@ def p_chord_pitches(t):
         t[0] = t[1]
         t[0].append(t[3])
 
-def p_pitch_natural(t):
+def p_pitch(t):
     """
-    pitch : pitch_letter
-          | pitch_letter octave
+    pitch : PITCH
     """
-    if len(t) == 2:
-        octave = 4
-    else:
-        octave = t[2]
-    t[0] = m21.pitch.Pitch(t[1] + str(octave))
-
-def p_pitch_accidental(t):
-    """
-    pitch : pitch_letter accidental
-          | pitch_letter accidental octave
-    """
-    if len(t) == 3:
-        octave = 4
-    else:
-        octave = t[3]
-    t[0] = m21.pitch.Pitch(t[1] + t[2] + str(octave))
-
-def p_pitch_letter(t):
-    """
-    pitch_letter : LETTER
-    """
-    if not re.match(r"[a-gA-GxX]", t[1]):
-        raise yacc.YaccError("Invalid pitch letter")
-    t[0] = t[1]
-
-def p_accidental(t):
-    """
-    accidental : '#'
-               | '-'
-    """
-    t[0] = t[1]
-
-def p_octave(t):
-    """
-    octave : INT
-    """
-    t[0] = t[1]
+    t[0] = m21.pitch.Pitch(t[1])
 
 def p_duration_empty(t):
     "duration : "
@@ -304,6 +260,7 @@ if __name__ == '__main__':
     for p in ast:
         part = m21.stream.Part()
         # Add instrument 
+        # https://github.com/cuthbertLab/music21/blob/master/music21/languageExcerpts/instrumentLookup.py
         part.insert(m21.instrument.fromString(p.instrument))
         for note in p.notes:
             part.append(note)
