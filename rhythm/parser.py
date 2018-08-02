@@ -5,9 +5,9 @@ import music21 as m21
 ###############################################################################
 
 class MyPart():
-    def __init__(self, instrument, notes):
+    def __init__(self, instrument, els):
         self.instrument = instrument
-        self.notes = notes
+        self.els = els
 
 ###############################################################################
 # Lexer
@@ -83,17 +83,15 @@ def p_part_list(t):
         t[0] = t[1]
         t[0].append(t[3])
 
-def p_part_default(t):
-    """
-    part : '[' SPACE melody SPACE ']'
-    """
-    t[0] = MyPart('piano', t[5])
-
 def p_part(t):
     """
-    part : tag_instrument SPACE '[' SPACE melody SPACE ']'
+    part : '[' SPACE melody SPACE ']'
+         | tag_instrument SPACE '[' SPACE melody SPACE ']'
     """
-    t[0] = MyPart(t[1], t[5])
+    if len(t) == 6:
+        t[0] = MyPart('piano', t[5])
+    else:
+        t[0] = MyPart(t[1], t[5])
 
 def p_melody(t):
     """
@@ -248,6 +246,7 @@ parser = yacc.yacc()
 # Runner
 ################################################################################
 import sys
+import random
 
 if __name__ == '__main__':
     input_str = sys.stdin.read().strip()
@@ -262,12 +261,19 @@ if __name__ == '__main__':
         # Add instrument 
         # https://github.com/cuthbertLab/music21/blob/master/music21/languageExcerpts/instrumentLookup.py
         part.insert(m21.instrument.fromString(p.instrument))
-        for note in p.notes:
-            part.append(note)
+        for el in p.els:
+            # Randomly adjust velocity (humanize)
+            if isinstance(el, m21.note.Note) or isinstance(el, m21.chord.Chord):
+                if not el.volume.velocity:
+                    el.volume.velocity = 64
+                el.volume.velocity += random.randint(0, 20)
+                el.volume.velocity -= random.randint(0, 20)
+
+            part.append(el)
         score.append(part)
     
     # Set tempo
-    tm = m21.tempo.MetronomeMark(number=60)
+    tm = m21.tempo.MetronomeMark(number=80)
     score.insert(0, tm)
     
     print(score.show('text'))

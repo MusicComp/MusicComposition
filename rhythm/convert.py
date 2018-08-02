@@ -4,6 +4,7 @@ import sys
 
 def convert_from_score(score):
     s = ''
+
     for part in score.parts:
         s += f'\\instrument<"piano">\n'
         s += '[ '
@@ -22,16 +23,17 @@ def convert_from_score(score):
                     n = '{'
                     n += ','.join([ pitch.nameWithOctave for pitch in el.pitches ])
                     n += '}'
-                else:
-                    pass
-                
                 # Add duration
                 s += f"{n}*{dur.denominator}/{dur.numerator} "
 
+            else:
+                el.show('text')
+
         s += ']\n'
+        print('------------')
     return s
 
 if __name__ == '__main__':
     score = m21.midi.translate.midiFilePathToStream(sys.argv[1])
     s = convert_from_score(score)
-    print(s)
+    # print(s)
