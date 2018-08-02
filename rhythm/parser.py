@@ -212,7 +212,7 @@ def p_duration_enum_denom(t):
     duration : '*' enum '/' denom dotting
     """
     quarterLength = 4 * t[2] / t[4]
-    dots = t[3]
+    dots = t[5]
     t[0] = m21.duration.Duration(quarterLength=quarterLength, dots=dots)
 
 
@@ -291,16 +291,15 @@ parser = yacc.yacc()
 ################################################################################
 # Runner
 ################################################################################
-while True:
-    try:
-        line = input('> ')
-    except EOFError:
-        break
-    ast = parser.parse(line)
+import sys
 
+if __name__ == '__main__':
+    input_str = sys.stdin.read().strip()
+    ast = parser.parse(input_str)
+    
     # Create score
     score = m21.stream.Score()
-
+    
     # Create parts
     for p in ast:
         part = m21.stream.Part()
@@ -309,12 +308,12 @@ while True:
         for note in p.notes:
             part.append(note)
         score.append(part)
-
+    
     # Set tempo
     tm = m21.tempo.MetronomeMark(number=60)
     score.insert(0, tm)
-
+    
     print(score.show('text'))
-
+    
     # Play score
     score.show('midi')
