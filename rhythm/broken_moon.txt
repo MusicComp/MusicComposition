@@ -1,0 +1,12 @@
+\metronome<80>
+
+\instrument<"piano">
+[
+a4/8 c5/8 d5/8 f5/8
+g5/4 f5/8 g5/8
+a5/4 f5/8 d5/8
+c5/8 a4/8 f5/8 g5/8
+d5/4 d5/8 f5/8
+g5/4 f5/8 g5/8
+a5/4 c6/8
+]

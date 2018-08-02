@@ -1,6 +1,15 @@
 import music21 as m21
 
 ###############################################################################
+# Helpers and classes
+###############################################################################
+
+class MyPart():
+    def __init__(self, instrument, notes):
+        self.instrument = instrument
+        self.notes = notes
+
+###############################################################################
 # Lexer
 ###############################################################################
 import ply.lex as lex
@@ -10,12 +19,15 @@ tokens = (
         'SPACE',
         'NUMBER',
         'LETTER',
-        # 'ALPHANUM',
+        'TAG_INSTRUMENT',
+        'STRING'
         )
 
-t_SPACE = r'[ \t]'
+t_SPACE = r'[ \t\n]+'
 t_LETTER = r'[a-zA-Z]'
-# t_ALPHANUM = r'[a-zA-Z_][a-zA-Z0-9_]*'
+# t_TAG = r'\\[a-zA-Z][a-zA-Z0-9_]*'
+t_TAG_INSTRUMENT = r'\\instrument'
+t_STRING = r'".*"'
 
 def t_NUMBER(t):
     r'\d+'
@@ -29,6 +41,7 @@ def t_NUMBER(t):
 literals = [
         '/', '\\',
         '#', '-',
+        '*',
         '%',
         '.',
         '[', ']',
@@ -47,9 +60,31 @@ import ply.yacc as yacc
 
 def p_main(t):
     """
-    main : note_series
+    main : part_list
     """
     t[0] = t[1]
+
+def p_part_list(t):
+    """
+    part_list : 
+              | part
+              | part_list SPACE part
+    """
+    # empty
+    if len(t) == 1:
+        t[0] = []
+    # single
+    elif len(t) == 2:
+        t[0] = [ t[1] ]
+    else:
+        t[0] = t[1]
+        t[0].append(t[3])
+
+def p_part(t):
+    """
+    part : tag_instrument SPACE '[' SPACE note_series SPACE ']'
+    """
+    t[0] = MyPart(t[1], t[5])
 
 def p_note_series(t):
     """
@@ -59,13 +94,12 @@ def p_note_series(t):
     """
     # empty
     if len(t) == 1:
-        t[0] = m21.stream.Stream()
+        t[0] = []
     # single
     elif len(t) == 2:
-        t[0] = m21.stream.Stream()
-        t[0].append(t[1])
+        t[0] = [ t[1] ]
     else:
-        t[0] = t[1] # stream
+        t[0] = t[1]
         t[0].append(t[3])
 
 def p_note(t):
@@ -100,7 +134,7 @@ def p_pitch_letter(t):
     """
     pitch_letter : LETTER
     """
-    if not re.match(r"[a-gA-G]", t[1]):
+    if not re.match(r"[a-gA-GxX]", t[1]):
         raise yacc.YaccError("Invalid pitch letter")
     t[0] = t[1]
 
@@ -119,13 +153,56 @@ def p_octave(t):
 
 def p_duration_empty(t):
     "duration : "
-    t[0] = m21.duration.Duration(0.25)
+    t[0] = m21.duration.Duration(quarterLength=1)
+
+def p_duration_enum_denom(t):
+    """
+    duration : '*' enum '/' denom
+             | '*' enum '/' denom dotting
+    """
+    # No dots
+    if len(t) == 5:
+        dots = 0
+    # Dots
+    else:
+        dots = t[3]
+    quarterLength = 4 * t[2] / t[4]
+    t[0] = m21.duration.Duration(quarterLength=quarterLength, dots=dots)
+
+
+def p_duration_enum(t):
+    """
+    duration : '*' enum
+             | '*' enum dotting
+    """
+    # No dots
+    if len(t) == 3:
+        dots = 0
+    # Dots
+    else:
+        dots = t[3]
+    quarterLength = 4 * t[2]
+    t[0] = m21.duration.Duration(quarterLength=quarterLength, dots=dots)
 
 def p_duration_denom(t):
     """
     duration : '/' denom
+             | '/' denom dotting
     """
-    t[0] = m21.duration.Duration(1.0 / t[2])
+    # No dots
+    if len(t) == 3:
+        dots = 0
+    # Dots
+    else:
+        dots = t[3]
+    quarterLength = 4 / t[2]
+    t[0] = m21.duration.Duration(quarterLength=quarterLength, dots=dots)
+
+def p_enum(t):
+    """
+    enum : NUMBER
+    """
+    t[0] = t[1]
 
 def p_denom(t):
     """
@@ -133,21 +210,13 @@ def p_denom(t):
     """
     t[0] = t[1]
 
-# TODO: enum, enum_denom, dottings...
-
-# """
-# duration : '*' enum '/' denom dotting
-# duration : '*' enum dotting
-# duration : '/' denom dotting
-# """
-
 def p_dotting_one(t):
-    "dotting : '.'"
-    t[0] = 1.5 # *3/2
+    "dotting : '.'" # *3/2
+    t[0] = 1
 
 def p_dotting_two(t):
-    "dotting : '.' '.'"
-    t[0] = 1.75 #* 7/4
+    "dotting : '.' '.'" # *7/4
+    t[0] = 2
 
 ## def p_tag(t):
 ##     """
@@ -156,6 +225,13 @@ def p_dotting_two(t):
 ##         | '\\' tag_name '(' note_series ')'
 ##         | '\\' tag_name '<' param_list '>' '(' note_series ')'
 ##     """
+
+def p_tag_instrument(t):
+    """
+    tag_instrument : TAG_INSTRUMENT '<' STRING '>'
+    """
+    t[0] = t[3]
+
 ##
 ## def p_tag_id(t):
 ##     """
@@ -182,6 +258,25 @@ while True:
         line = input('> ')
     except EOFError:
         break
-    stream = parser.parse(line)
-    print(stream)
-    stream.show('midi')
+    ast = parser.parse(line)
+
+    # Create score
+    score = m21.stream.Score()
+
+    # Create parts
+    for p in ast:
+        part = m21.stream.Part()
+        # Add instrument 
+        part.insert(m21.instrument.fromString(p.instrument))
+        for note in p.notes:
+            part.append(note)
+        score.append(part)
+
+    # Set tempo
+    tm = m21.tempo.MetronomeMark(number=60)
+    score.insert(0, tm)
+
+    print(score.show('text'))
+
+    # Play score
+    score.show('midi')
