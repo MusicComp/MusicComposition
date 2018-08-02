@@ -17,7 +17,7 @@ import re
 
 tokens = (
         'SPACE',
-        'NUMBER',
+        'INT',
         'LETTER',
         'TAG_INSTRUMENT',
         'STRING'
@@ -29,7 +29,8 @@ t_LETTER = r'[a-zA-Z]'
 t_TAG_INSTRUMENT = r'\\instrument'
 t_STRING = r'".*"'
 
-def t_NUMBER(t):
+def t_INT(t):
+    # TODO support decimals
     r'\d+'
     try:
         t.value = int(t.value)
@@ -80,6 +81,12 @@ def p_part_list(t):
         t[0] = t[1]
         t[0].append(t[3])
 
+def p_part_default(t):
+    """
+    part : '[' SPACE note_series SPACE ']'
+    """
+    t[0] = MyPart('piano', t[5])
+
 def p_part(t):
     """
     part : tag_instrument SPACE '[' SPACE note_series SPACE ']'
@@ -117,6 +124,7 @@ def p_pitch_natural(t):
         octave = 4
     else:
         octave = t[2]
+    print(octave)
     t[0] = m21.pitch.Pitch(t[1] + str(octave))
 
 def p_pitch_accidental(t):
@@ -147,7 +155,7 @@ def p_accidental(t):
 
 def p_octave(t):
     """
-    octave : NUMBER
+    octave : INT
     """
     t[0] = t[1]
 
@@ -200,13 +208,13 @@ def p_duration_denom(t):
 
 def p_enum(t):
     """
-    enum : NUMBER
+    enum : INT
     """
     t[0] = t[1]
 
 def p_denom(t):
     """
-    denom : NUMBER
+    denom : INT
     """
     t[0] = t[1]
 
