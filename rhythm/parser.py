@@ -1,26 +1,4 @@
-###############################################################################
-# Classes
-###############################################################################
-class Note:
-    def __init__(self, pitch, duration):
-        self.pitch = pitch
-        self.duration = duration
-    def __str__(self):
-        return f"[{self.pitch}, {self.duration}]"
-
-class Pitch:
-    def __init__(self, pitch_letter, octave):
-        self.pitch_letter = pitch_letter
-        self.octave = octave
-    def __str__(self):
-        return f"{self.pitch_letter}{self.octave}"
-
-class Duration:
-    def __init__(self, enum, denom):
-        self.enum = enum
-        self.denom = denom
-    def __str__(self):
-        return f"{self.enum}/{self.denom}"
+import music21 as m21
 
 ###############################################################################
 # Lexer
@@ -50,7 +28,7 @@ def t_NUMBER(t):
 
 literals = [
         '/', '\\',
-        '#', 'b',
+        '#', '-',
         '%',
         '.',
         '[', ']',
@@ -77,22 +55,24 @@ def p_note_series(t):
     """
     note_series : 
                 | note
-                | note SPACE note_series
+                | note_series SPACE note
     """
     # empty
     if len(t) == 1:
-        t[0] = []
+        t[0] = m21.stream.Stream()
     # single
     elif len(t) == 2:
-        t[0] = [ t[1] ]
+        t[0] = m21.stream.Stream()
+        t[0].append(t[1])
     else:
-        t[0] = [ t[1], t[3] ]
+        t[0] = t[1] # stream
+        t[0].append(t[3])
 
 def p_note(t):
     """
     note : pitch duration
     """
-    t[0] = Note(t[1], t[2])
+    t[0] = m21.note.Note(t[1], duration=t[2])
 
 def p_pitch_natural(t):
     """
@@ -103,7 +83,7 @@ def p_pitch_natural(t):
         octave = 4
     else:
         octave = t[2]
-    t[0] = Pitch(t[1], octave)
+    t[0] = m21.pitch.Pitch(t[1] + str(octave))
 
 def p_pitch_accidental(t):
     """
@@ -114,7 +94,7 @@ def p_pitch_accidental(t):
         octave = 4
     else:
         octave = t[3]
-    t[0] = Pitch(t[1] + t[2], octave)
+    t[0] = m21.pitch.Pitch(t[1] + t[2] + str(octave))
 
 def p_pitch_letter(t):
     """
@@ -127,7 +107,7 @@ def p_pitch_letter(t):
 def p_accidental(t):
     """
     accidental : '#'
-               | 'b'
+               | '-'
     """
     t[0] = t[1]
 
@@ -139,13 +119,13 @@ def p_octave(t):
 
 def p_duration_empty(t):
     "duration : "
-    t[0] = Duration(1, 4)
+    t[0] = m21.duration.Duration(0.25)
 
 def p_duration_denom(t):
     """
     duration : '/' denom
     """
-    t[0] = Duration(1, t[2])
+    t[0] = m21.duration.Duration(1.0 / t[2])
 
 def p_denom(t):
     """
@@ -199,9 +179,9 @@ parser = yacc.yacc()
 ################################################################################
 while True:
     try:
-        s = input('> ')
+        line = input('> ')
     except EOFError:
         break
-    notes = parser.parse(s)
-    out = ''.join([str(n) for n in notes])
-    print(out)
+    stream = parser.parse(line)
+    print(stream)
+    stream.show('midi')
